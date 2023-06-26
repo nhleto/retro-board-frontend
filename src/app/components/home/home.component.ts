@@ -1,14 +1,16 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { SocketService } from '../../services/socket.service';
-import { scan } from 'rxjs/operators';
+import { SocketService } from '../../services/websocket/socket.service';
+import { scan, tap } from 'rxjs/operators';
 import { Message, MessageRequest, MessageSchema } from 'src/app/models';
+import { DataProviderService } from 'src/app/services/data-provider/data-provider.service';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-home-component',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
@@ -19,9 +21,11 @@ export class HomeComponent {
 
   public messages$ = this.socketService
     .socketStream$('text')
-    .pipe(scan((messages: string[], message: MessageRequest) => [...messages, message.message], []));
+    .pipe(
+      scan((messages: string[], message: MessageRequest) => [...messages, message.message], [])
+    );
 
-  constructor(private fb: FormBuilder, private socketService: SocketService) {}
+  constructor(private fb: FormBuilder, private socketService: SocketService, private dataService: DataProviderService, private activatedRoute: ActivatedRoute) {}
 
   public submit() {
     const value = this.textForm.value;

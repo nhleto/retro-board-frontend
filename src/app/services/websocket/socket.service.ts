@@ -1,34 +1,28 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, concatMap, filter, map, tap, Observable } from 'rxjs';
-import { webSocket } from 'rxjs/webSocket';
-import { MessageRequest, MessageRequestSchema, MessageEnum } from '../models';
+import { MessageRequest, MessageRequestSchema, MessageEnum } from '../../models';
+import { Socket } from 'ngx-socket-io';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SocketService {
-  private socket = webSocket({
-    url: 'ws://localhost:8080',
-    deserializer: ({ data }) => data,
-  });
-
+  // TODO: Cant user this with socket.io
   private websocketSubject = new BehaviorSubject<MessageRequest>({} as MessageRequest);
 
   public set websocket(value: MessageRequest) {
-    this.socket.next(value);
+    this.socketIo.emit('message', value);
   }
 
   public get websocketValue() {
     return this.websocketSubject.value?.message ?? '';
   }
 
-  constructor() {
-    this.socket
-      .pipe(
-        concatMap((data) => data.text()),
-        map((data) => MessageRequestSchema.parse(JSON.parse(data as string)))
-      )
-      .subscribe((data) => this.websocketSubject.next(data));
+  constructor(private socketIo: Socket) {
+    this.socketIo.fromEvent('message').pipe(
+      map(data => data as MessageRequest),
+      tap(console.log)
+    ).subscribe(this.websocketSubject)
   }
 
   public socketStream$(type: MessageEnum): Observable<MessageRequest> {
