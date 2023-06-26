@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { DocumentData, DocumentReference, FieldValue, Firestore, addDoc, arrayUnion, collection, collectionData, doc, getDoc, setDoc, updateDoc } from '@angular/fire/firestore'
-import { Observable, from, map, switchMap, tap } from 'rxjs';
+import { DocumentData, DocumentReference, Firestore, addDoc, arrayUnion, collection, collectionData, doc, getDoc, setDoc, updateDoc } from '@angular/fire/firestore'
+import { Observable, from, map } from 'rxjs';
 import { Group } from 'src/app/models';
 
 @Injectable({

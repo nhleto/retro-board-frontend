@@ -1,12 +1,38 @@
 <div class="wrapper">
-  <div class="column">
+  <div class="column" (keydown.enter)="submit('liked')" [formGroup]="textForm">
     <h2>Liked</h2>
+    <ul>
+      <div
+        *ngFor="let message of socketStream$('liked') | async"
+        class="idea-wrapper"
+      >
+        <h4>{{ message.message }}</h4>
+      </div>
+    </ul>
+    <div class="input-wrapper">
+      <input
+        formControlName="text"
+        type="input"
+        class="form__field"
+        placeholder="Liked"
+        name="liked"
+        required
+      />
+      <label for="liked" class="form__label">Liked</label>
+    </div>
   </div>
-  <div class="column" (keydown.enter)="submit()" [formGroup]="textForm">
+  <div
+    class="column"
+    (keydown.enter)="submit('learned')"
+    [formGroup]="textForm"
+  >
     <h2>Learned</h2>
     <ul>
-      <div *ngFor="let message of messages$ | async" class="idea-wrapper">
-        <h4>{{ message }}</h4>
+      <div
+        *ngFor="let message of socketStream$('learned') | async"
+        class="idea-wrapper"
+      >
+        <h4>{{ message.message }}</h4>
       </div>
     </ul>
     <div class="input-wrapper">
@@ -16,13 +42,31 @@
         class="form__field"
         placeholder="Learned"
         name="learned"
-        id="name"
         required
       />
-      <label for="name" class="form__label">Learned</label>
+      <label for="learned" class="form__label">Learned</label>
     </div>
   </div>
-  <div class="column">
+  <div class="column" (keydown.enter)="submit('lacked')" [formGroup]="textForm">
     <h2>Lacked</h2>
+    <ul>
+      <div
+        *ngFor="let message of socketStream$('lacked') | async"
+        class="idea-wrapper"
+      >
+        <h4>{{ message.message }}</h4>
+      </div>
+    </ul>
+    <div class="input-wrapper">
+      <input
+        formControlName="text"
+        type="input"
+        class="form__field"
+        placeholder="Lacked"
+        name="lacked"
+        required
+      />
+      <label for="lacked" class="form__label">Lacked</label>
+    </div>
   </div>
 </div>

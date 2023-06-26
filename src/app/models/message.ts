@@ -12,6 +12,12 @@ export const MessageRequestSchema = z.object({
   groupId: z.string()
 });
 
+export const MessagePayload = z.object({
+  type: MessageTypeSchema,
+  message: z.string()
+})
+
 export type Message = z.infer<typeof MessageSchema>;
 export type MessageRequest = z.infer<typeof MessageRequestSchema>;
 export type MessageEnum = z.infer<typeof MessageTypeSchema>;
+export type MessagePayload = z.infer<typeof MessagePayload>;
