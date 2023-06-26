@@ -18,6 +18,8 @@ export class SocketService {
     return this.websocketSubject.value?.message ?? '';
   }
 
+  public likedStream$ = this.websocketSubject.pipe(filter(message => message.type === 'liked'));
+
   constructor(private socketIo: Socket, private dataService: DataProviderService) {
     this.socketIo.fromEvent('message').pipe(
       map(data => data as MessageRequest),
@@ -37,7 +39,7 @@ export class SocketService {
   private mapToGroup(message: MessageRequest): Group {
     return {
       id: message?.groupId,
-      messages: [message.message]
+      messages: [{type: message.type, message: message.message}]
     }
   }
 }
