@@ -9,6 +9,7 @@ export const MessageTypeSchema = z.enum(['learned', 'liked', 'lacked', 'text']);
 export const MessageRequestSchema = z.object({
   type: MessageTypeSchema,
   message: z.string(),
+  groupId: z.string()
 });
 
 export type Message = z.infer<typeof MessageSchema>;

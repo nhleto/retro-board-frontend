@@ -26,7 +26,7 @@ export class WelcomeComponent {
           return this.dataProvider.createGroup();
         }
       }),
-      switchMap(value => typeof value === 'string' ? of(value) : forkJoin([of(value.id), this.dataProvider.updateGroup(value.id, {id: value.id})]))
+      switchMap(value => typeof value === 'string' ? of(value) : forkJoin([of(value.id), this.dataProvider.putGroup(value.id, {id: value.id})]))
     )
     .subscribe(result => typeof result === 'string' ? this.router.navigate(['/group', result]) : this.router.navigate(['/group', result[0]]))
   }

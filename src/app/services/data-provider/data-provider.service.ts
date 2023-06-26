@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { DocumentData, DocumentReference, Firestore, addDoc, collection, collectionData, doc, setDoc, updateDoc } from '@angular/fire/firestore'
-import { Observable, from, switchMap, tap } from 'rxjs';
+import { DocumentData, DocumentReference, FieldValue, Firestore, addDoc, arrayUnion, collection, collectionData, doc, getDoc, setDoc, updateDoc } from '@angular/fire/firestore'
+import { Observable, from, map, switchMap, tap } from 'rxjs';
 import { Group } from 'src/app/models';
 
 @Injectable({
@@ -20,7 +20,15 @@ export class DataProviderService {
     return from(addDoc(this.groupCollection, {}));
   }
 
-  public updateGroup(id: string, data?: Partial<Group>): Observable<void> {
+  public putGroup(id: string, data?: Partial<Group>): Observable<void> {
     return (from(setDoc(doc(this.groupCollection, id), data, {merge: true})))
+  }
+
+  public patchGroup(data: Group) {
+    return from(updateDoc(doc(this.groupCollection, data.id), {messages: arrayUnion(data.messages[0])}))
+  }
+
+  public getGroup(id: string): Observable<Group> {
+    return from(getDoc(doc(this.groupCollection, id))).pipe(map(value => value.data() as Group))
   }
 }
