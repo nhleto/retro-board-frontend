@@ -8,8 +8,9 @@ import { DataProviderService } from '../data-provider/data-provider.service';
   providedIn: 'root',
 })
 export class SocketService {
-  private websocketSubject = new BehaviorSubject<MessageRequest>({} as MessageRequest);
-
+  private websocketSubject = new BehaviorSubject<MessageRequest>(null);
+  public socketStream$ = this.websocketSubject.asObservable();
+  
   public set websocket(value: MessageRequest) {
     this.socketIo.emit('message', value);
   }
@@ -18,7 +19,6 @@ export class SocketService {
     return this.websocketSubject.value?.message ?? '';
   }
 
-  public likedStream$ = this.websocketSubject.pipe(filter(message => message.type === 'liked'));
 
   constructor(private socketIo: Socket, private dataService: DataProviderService) {
     this.socketIo.fromEvent('message').pipe(
@@ -26,10 +26,6 @@ export class SocketService {
       mergeMap(data => forkJoin([this.dataService.patchGroup(this.mapToGroup(data)), of(data)])),
       map(([_, message]) => message)
     ).subscribe(this.websocketSubject)
-  }
-
-  public socketStream$(type: MessageEnum): Observable<MessageRequest> {
-    return this.filterWebSocket$(type);
   }
 
   private filterWebSocket$(type: MessageEnum) {
