@@ -23,7 +23,7 @@ export class HomeComponent {
 
   private groupId = this.activatedRoute.snapshot.paramMap.get('id');
   
-  public messages$ = merge(this.dataService.getGroup(this.groupId ?? '').pipe(map(data => data.messages)), this.socketService.socketStream$.pipe(filter(message => !!message))).pipe(
+  public messages$ = merge(this.dataService.getGroup(this.groupId ?? '').pipe(map(data => data?.messages), filter(m => !!m)), this.socketService.socketStream$.pipe(filter(message => !!message))).pipe(
     scan((messages: MessagePayload[], message: MessagePayload[] | MessageRequest) => {
       if (this.isMessageRequest(message)) {
         return [...messages, message];

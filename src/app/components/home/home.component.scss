@@ -6,14 +6,13 @@
     margin: 1rem;
     padding: 0.25rem;
     display: flex;
-    justify-content: center;
+    justify-content: start;
     flex-direction: column;
     align-items: center;
     position: relative;
 
     h2 {
       color: rgb(248, 239, 213);
-      margin-bottom: auto;
     }
 
     ul {
@@ -47,6 +46,7 @@
   width: 100%;
   position: relative;
   margin-top: 1rem;
+  // margin-bottom: auto;
 }
 
 $primary: #11998e;
