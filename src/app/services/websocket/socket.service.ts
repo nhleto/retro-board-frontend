@@ -28,10 +28,6 @@ export class SocketService {
     ).subscribe(this.websocketSubject)
   }
 
-  private filterWebSocket$(type: MessageEnum) {
-    return this.websocketSubject.pipe(filter((message) => message.type === type));
-  }
-
   private mapToGroup(message: MessageRequest): Group {
     return {
       id: message?.groupId,
