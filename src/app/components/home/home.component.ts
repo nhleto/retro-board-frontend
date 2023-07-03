@@ -1,13 +1,11 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { SocketService } from '../../services/websocket/socket.service';
-import { filter, map, scan, startWith, switchMap, tap, toArray } from 'rxjs/operators';
-import { Message, MessageRequest, MessageSchema, MessageEnum, MessagePayload } from 'src/app/models';
-import { DataProviderService } from 'src/app/services/data-provider/data-provider.service';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { from, merge } from 'rxjs';
-import { ChangeDetectionStrategy } from '@angular/compiler';
+import { from } from 'rxjs';
+import { filter, switchMap, toArray } from 'rxjs/operators';
+import { Group, Message, MessageEnum, MessageRequest, MessageSchema } from 'src/app/models';
+import { DataProviderService } from 'src/app/services/data-provider/data-provider.service';
 
 @Component({
   selector: 'app-home-component',
@@ -23,15 +21,7 @@ export class HomeComponent {
 
   private groupId = this.activatedRoute.snapshot.paramMap.get('id');
   
-  public messages$ = merge(this.dataService.getGroup(this.groupId ?? '').pipe(map(data => data?.messages), filter(m => !!m)), this.socketService.socketStream$.pipe(filter(message => !!message))).pipe(
-    scan((messages: MessagePayload[], message: MessagePayload[] | MessageRequest) => {
-      if (this.isMessageRequest(message)) {
-        return [...messages, message];
-      }
-
-      return [...messages, ...message];
-    } , [])
-  )
+  private messages$ = this.dataService.listenToGroup(this.groupId).pipe(filter(data => !!data));
 
   public liked$ = this.messages$.pipe(
     switchMap((messages) => from(messages).pipe(filter(message => message.type === 'liked'), toArray()))
@@ -49,9 +39,9 @@ export class HomeComponent {
     switchMap((messages) => from(messages).pipe(filter(message => message.type === 'text'), toArray()))
   );
 
-  constructor(private fb: FormBuilder, private socketService: SocketService, private activatedRoute: ActivatedRoute, private dataService: DataProviderService) {}
+  constructor(private fb: FormBuilder, private activatedRoute: ActivatedRoute, private dataService: DataProviderService) {}
 
-  public submit(type: MessageEnum) {
+  public async submit(type: MessageEnum) {
     const value = this.textForm.value;
 
     if (!MessageSchema.safeParse(value).success || this.textForm.invalid) {
@@ -65,11 +55,14 @@ export class HomeComponent {
     }
 
     const payload: MessageRequest = { type: type, message: messageValue?.text ?? '', groupId: this.groupId };
-    this.socketService.websocket = payload;
     this.textForm.reset();
+    await this.dataService.patchGroup(this.mapToGroup(payload))
   }
 
-  private isMessageRequest(value: MessagePayload[] | MessageRequest): value is MessageRequest {
-    return (value as MessageRequest)?.groupId !== undefined;
+  private mapToGroup(message: MessageRequest): Group {
+    return {
+      id: message?.groupId,
+      messages: [{type: message.type, message: message.message}]
+    }
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { DocumentData, DocumentReference, Firestore, addDoc, arrayUnion, collection, collectionData, doc, getDoc, setDoc, updateDoc } from '@angular/fire/firestore'
+import { DocumentData, DocumentReference, Firestore, addDoc, collection, collectionData, doc, docSnapshots, getDoc, setDoc } from '@angular/fire/firestore';
 import { Observable, from, map } from 'rxjs';
 import { Group } from 'src/app/models';
 
@@ -24,11 +24,18 @@ export class DataProviderService {
     return (from(setDoc(doc(this.groupCollection, id), data, {merge: true})))
   }
 
-  public patchGroup(data: Group) {
-    return from(updateDoc(doc(this.groupCollection, data.id), {messages: arrayUnion(data.messages[0])}))
+  public async patchGroup(data: Group) {
+    const group = (await getDoc(doc(this.groupCollection, data.id))).data() as Group;
+    group.messages = group?.messages?.concat(data?.messages);
+    await (setDoc(doc(this.groupCollection, data.id), group, {merge: true}));
   }
 
   public getGroup(id: string): Observable<Group> {
     return from(getDoc(doc(this.groupCollection, id))).pipe(map(value => value.data() as Group))
+  }
+
+  public listenToGroup(id: string): Observable<{ type?: "learned" | "liked" | "lacked" | "text"; message?: string; }[]> {
+    const ref = doc(this.groupCollection, id);
+    return docSnapshots(ref).pipe(map(data => (data.data() as Group)?.messages));
   }
 }

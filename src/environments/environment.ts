@@ -7,7 +7,4 @@ export const environment = {
     messagingSenderId: '518323595342',
     appId: '1:518323595342:web:6ccde04fb345a96f0b3b1f',
   },
-  socketIo: {
-    url: 'http://localhost:3000'
-  }
 };
