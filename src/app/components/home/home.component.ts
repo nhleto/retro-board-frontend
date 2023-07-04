@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { from } from 'rxjs';
-import { filter, switchMap, toArray } from 'rxjs/operators';
+import { filter, map, switchMap, toArray } from 'rxjs/operators';
 import { Group, Message, MessageEnum, MessageRequest, MessageSchema } from 'src/app/models';
 import { DataProviderService } from 'src/app/services/data-provider/data-provider.service';
 
@@ -21,7 +21,7 @@ export class HomeComponent {
 
   private groupId = this.activatedRoute.snapshot.paramMap.get('id');
   
-  private messages$ = this.dataService.listenToGroup(this.groupId).pipe(filter(data => !!data));
+  private messages$ = this.dataService.listenToGroup(this.groupId).pipe(filter(data => !!data), map(data => data.reverse()));
 
   public liked$ = this.messages$.pipe(
     switchMap((messages) => from(messages).pipe(filter(message => message.type === 'liked'), toArray()))
